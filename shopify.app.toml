@@ -1,0 +1,36 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "e34ffdd0c1ba542537b009aeb3cd64c1"
+name = "Live Chat Support"
+application_url = "https://live-chat-support-ashy.vercel.app"
+embedded = true
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_customers,read_orders,write_app_proxy"
+
+[webhooks]
+api_version = "2027-01"
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/uninstalled"
+  topics = [ "app/uninstalled" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/orders"
+  topics = [ "orders/create", "orders/paid", "orders/fulfilled", "orders/cancelled" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/app/scopes_update"
+  topics = [ "app/scopes_update" ]
+
+[auth]
+redirect_urls = [ "https://live-chat-support-ashy.vercel.app/api/auth" ]
+
+[build]
+automatically_update_urls_on_dev = true
+
+[app_proxy]
+url = "https://live-chat-support-ashy.vercel.app/proxy"
+prefix = "apps"
+subpath = "messages"

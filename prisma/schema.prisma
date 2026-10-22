@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
+// enough when changing adapters.
+// See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Session {
+  id            String    @id
+  shop          String
+  state         String
+  isOnline      Boolean   @default(false)
+  scope         String?
+  expires       DateTime?
+  accessToken   String
+  userId        BigInt?
+  firstName     String?
+  lastName      String?
+  email         String?
+  accountOwner  Boolean   @default(false)
+  locale        String?
+  collaborator  Boolean?  @default(false)
+  emailVerified Boolean?  @default(false)
+  refreshToken        String?
+  refreshTokenExpires DateTime?
+}
+
+model Conversation {
+  id                 String    @id @default(cuid())
+  shop               String
+  customerId         String
+  customerName       String?
+  customerEmail      String?
+  unreadForAdmin     Int       @default(0)
+  customerLastSeenAt DateTime?
+  lastMessageAt      DateTime  @default(now())
+  createdAt          DateTime  @default(now())
+  messages           Message[]
+
+  @@unique([shop, customerId])
+  @@index([shop, lastMessageAt])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         String // "customer" or "admin"
+  body           String
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+model Notification {
+  id         String    @id @default(cuid())
+  shop       String
+  customerId String
+  type       String // "repair" | "order" | "chat"
+  title      String
+  body       String
+  url        String?
+  dedupeKey  String?
+  readAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@unique([shop, customerId, dedupeKey])
+  @@index([shop, customerId, createdAt])
+}
+
+model NotificationPref {
+  id         String  @id @default(cuid())
+  shop       String
+  customerId String
+  type       String // "all" | "repair" | "order" | "chat"
+  enabled    Boolean @default(true)
+
+  @@unique([shop, customerId, type])
+}
