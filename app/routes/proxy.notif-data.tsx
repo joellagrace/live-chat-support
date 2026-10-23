@@ -2,6 +2,15 @@ import type { LoaderFunctionArgs } from "react-router";
 import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
 
+// Where "View details" goes, per notification type (Cosmo account page links).
+// Resolved at read time so old notifications follow any later change.
+// Override with env vars NOTIF_LINK_ORDER / NOTIF_LINK_REPAIR / NOTIF_LINK_CHAT.
+const LINKS: Record<string, string | undefined> = {
+  order: process.env.NOTIF_LINK_ORDER || "/a/account?a=orders_page",
+  repair: process.env.NOTIF_LINK_REPAIR || "/apps/repair-tracker/repairs?show=account",
+  chat: process.env.NOTIF_LINK_CHAT || undefined,
+};
+
 // GET /apps/messages/notif-data  -> notifications + unread count + prefs
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.public.appProxy(request);
@@ -37,7 +46,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         type: n.type,
         title: n.title,
         body: n.body,
-        url: n.url,
+        url: LINKS[n.type] ?? n.url,
         read: !!n.readAt,
         createdAt: n.createdAt.toISOString(),
       })),

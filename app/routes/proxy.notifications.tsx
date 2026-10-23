@@ -11,7 +11,7 @@ const PAGE = `
 .nt-root *{box-sizing:border-box;font-family:inherit}
 .nt-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .nt-h{font-size:20px;font-weight:650;margin:0}
-.nt-bell{position:relative;display:flex;align-items:center;gap:4px;color:var(--nt-text)}
+.nt-bell{position:relative;display:flex;align-items:center;gap:4px;color:var(--nt-text);background:transparent;border:0;padding:4px;cursor:pointer;border-radius:10px}.nt-bell:hover{background:rgba(0,0,0,.05)}
 .nt-bell b{font-size:12px;font-weight:700;background:var(--nt-accent);color:var(--nt-accent-text);border-radius:20px;min-width:20px;height:20px;padding:0 6px;display:flex;align-items:center;justify-content:center}
 .nt-bell b.zero{background:#e5dbd7;color:#8a7f7a}
 .nt-tabs{display:flex;gap:6px;background:var(--nt-tab-bg);padding:8px;border-radius:var(--nt-radius)}
@@ -55,10 +55,10 @@ const PAGE = `
 <div class="nt-root" id="nt-root">
   <div class="nt-top">
     <h2 class="nt-h">Notifications</h2>
-    <div class="nt-bell" title="Unread notifications">
+    <button type="button" class="nt-bell" id="nt-bell" title="Show unread notifications" aria-label="Show unread notifications">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
       <b class="zero" id="nt-count">0</b>
-    </div>
+    </button>
   </div>
   <div class="nt-tabs">
     <button class="nt-tab on" id="nt-tab-all" type="button">All notifications</button>
@@ -280,6 +280,12 @@ const PAGE = `
   }
   document.getElementById('nt-f-all').addEventListener('click', function () { setFilter('all'); });
   document.getElementById('nt-f-unread').addEventListener('click', function () { setFilter('unread'); });
+
+  document.getElementById('nt-bell').addEventListener('click', function () {
+    show('all');
+    setFilter('unread');
+    window.scrollTo({ top: root.getBoundingClientRect().top + window.pageYOffset - 20, behavior: 'smooth' });
+  });
 
   readAllBtn.addEventListener('click', function () {
     state.items.forEach(function (n) { n.read = true; });
